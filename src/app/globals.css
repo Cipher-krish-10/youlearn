@@ -1,0 +1,264 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+ * Design tokens
+ *
+ * Philosophy: a near-neutral slate scale carries the interface; a single
+ * indigo accent is used sparingly for intent (primary actions, focus, the
+ * active state). Borders define structure; shadows are reserved almost
+ * entirely for overlays. Semantic colors (success/destructive) exist only to
+ * communicate state, never to decorate.
+ * ------------------------------------------------------------------------- */
+:root {
+  --radius: 0.5rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.014 264);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.014 264);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.014 264);
+
+  /* The single accent */
+  --primary: oklch(0.54 0.16 264);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.968 0.003 264);
+  --secondary-foreground: oklch(0.27 0.012 264);
+
+  --muted: oklch(0.97 0.003 264);
+  --muted-foreground: oklch(0.52 0.014 264);
+
+  /* Neutral hover surface (menus, ghost buttons) — not an accent */
+  --accent: oklch(0.965 0.004 264);
+  --accent-foreground: oklch(0.27 0.012 264);
+
+  --destructive: oklch(0.58 0.21 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --success: oklch(0.6 0.13 155);
+
+  --border: oklch(0.925 0.004 264);
+  --input: oklch(0.91 0.005 264);
+  --ring: oklch(0.54 0.16 264);
+
+  --sidebar: oklch(0.985 0.002 264);
+  --sidebar-foreground: oklch(0.21 0.014 264);
+  --sidebar-border: oklch(0.925 0.004 264);
+  --sidebar-accent: oklch(0.965 0.004 264);
+  --sidebar-accent-foreground: oklch(0.27 0.012 264);
+}
+
+.dark {
+  --background: oklch(0.17 0.006 264);
+  --foreground: oklch(0.96 0.002 264);
+
+  --card: oklch(0.205 0.007 264);
+  --card-foreground: oklch(0.96 0.002 264);
+
+  --popover: oklch(0.205 0.007 264);
+  --popover-foreground: oklch(0.96 0.002 264);
+
+  --primary: oklch(0.66 0.15 264);
+  --primary-foreground: oklch(0.17 0.006 264);
+
+  --secondary: oklch(0.25 0.008 264);
+  --secondary-foreground: oklch(0.96 0.002 264);
+
+  --muted: oklch(0.25 0.008 264);
+  --muted-foreground: oklch(0.66 0.012 264);
+
+  --accent: oklch(0.27 0.009 264);
+  --accent-foreground: oklch(0.96 0.002 264);
+
+  --destructive: oklch(0.62 0.19 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --success: oklch(0.68 0.13 155);
+
+  --border: oklch(0.27 0.008 264);
+  --input: oklch(0.3 0.009 264);
+  --ring: oklch(0.66 0.15 264);
+
+  --sidebar: oklch(0.185 0.006 264);
+  --sidebar-foreground: oklch(0.92 0.003 264);
+  --sidebar-border: oklch(0.27 0.008 264);
+  --sidebar-accent: oklch(0.25 0.009 264);
+  --sidebar-accent-foreground: oklch(0.96 0.002 264);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+
+  --radius-sm: calc(var(--radius) - 3px);
+  --radius-md: calc(var(--radius) - 1px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 3px);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1,
+      "ss01" 1,
+      "cv01" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* A single, consistent heading scale carries hierarchy — not color. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.014em;
+    text-wrap: balance;
+  }
+
+  /* Lighter icon strokes read as engineered rather than drawn. */
+  svg.lucide {
+    stroke-width: 1.75;
+  }
+
+  .tabular,
+  [data-tabular] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklch, var(--color-primary) 18%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Quiet, unobtrusive scrollbars */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-muted-foreground);
+    background-clip: content-box;
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  max-width: 72rem;
+}
+
+/* Radix accordion height animation */
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+@utility animate-accordion-down {
+  animation: accordion-down 0.2s ease-out;
+}
+@utility animate-accordion-up {
+  animation: accordion-up 0.2s ease-out;
+}
+
+/* Skeleton shimmer — a quiet sheen over a muted base */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@utility animate-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklch, var(--color-foreground) 5%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* The only entrance motion in the app: a brief, subtle fade-up. */
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@utility animate-fade-rise {
+  animation: fade-rise 0.28s ease-out both;
+}

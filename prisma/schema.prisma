@@ -1,0 +1,282 @@
+// LearnTube — data model
+// Generated client is emitted to src/generated to keep it out of node_modules
+// noise and make imports explicit.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// -----------------------------------------------------------------------------
+// Users
+// Mirrors the Supabase `auth.users` row. `id` equals the Supabase auth uid so
+// Row-Level Security policies can compare `auth.uid()` directly.
+// -----------------------------------------------------------------------------
+model User {
+  id        String   @id @db.Uuid
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  videos      Video[]
+  collections Collection[]
+  notes       Note[]
+  chatSessions ChatSession[]
+
+  @@map("users")
+}
+
+// -----------------------------------------------------------------------------
+// Videos — the central entity. Ingestion drives `status` through the lifecycle.
+// -----------------------------------------------------------------------------
+enum VideoStatus {
+  PENDING // queued, nothing fetched yet
+  PROCESSING // fetching metadata / transcript / chunking
+  READY // transcript available, AI features unlocked
+  FAILED // unrecoverable error (see statusMessage)
+}
+
+model Video {
+  id            String      @id @default(cuid())
+  // Optional until real auth lands; the repository interface stays auth-agnostic.
+  userId           String?     @db.Uuid
+  youtubeId        String // 11-char YouTube video id
+  url              String
+  title            String
+  description      String?     @db.Text
+  channelTitle     String?
+  thumbnailUrl     String?
+  durationSec      Int?
+  publishedAt      DateTime?
+  status           VideoStatus @default(PENDING)
+  statusMessage    String?
+  transcriptStatus String      @default("unavailable")
+  transcriptSource String?
+  isSample         Boolean     @default(false)
+  // Raw display transcript (segments). Embedded chunks live in transcript_chunks.
+  transcript       Json?
+  lastViewedAt     DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  user            User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transcriptChunks TranscriptChunk[]
+  aiArtifacts     AiArtifact[]
+  chatLogs        ChatLog[]
+  summary         Summary?
+  notes           Note[]
+  flashcards      Flashcard[]
+  quizQuestions   QuizQuestion[]
+  chatSessions    ChatSession[]
+  collections     CollectionVideo[]
+
+  // A user keeps one workspace per distinct YouTube video.
+  @@unique([userId, youtubeId])
+  @@index([userId, createdAt])
+  @@index([status])
+  @@map("videos")
+}
+
+// Transcript split into time-ranged chunks. Embeddings (pgvector) are added in
+// the RAG milestone via a raw migration; kept off the model for now.
+model TranscriptChunk {
+  id        String   @id @default(cuid())
+  videoId   String
+  index     Int // ordinal within the transcript
+  startSec  Float
+  endSec    Float
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, index])
+  @@index([videoId])
+  @@map("transcript_chunks")
+}
+
+// -----------------------------------------------------------------------------
+// AI artifacts
+// -----------------------------------------------------------------------------
+model Summary {
+  id           String   @id @default(cuid())
+  videoId      String   @unique
+  executive    String   @db.Text
+  detailed     String   @db.Text
+  keyTakeaways String[] // bullet list
+  model        String // which model produced it (for cache invalidation)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("summaries")
+}
+
+model Flashcard {
+  id         String   @id @default(cuid())
+  videoId    String
+  front      String   @db.Text
+  back       String   @db.Text
+  difficulty Int      @default(0) // 0=new, SRS grade later
+  reviewedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@index([videoId])
+  @@map("flashcards")
+}
+
+enum QuizType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  FILL_BLANK
+  SHORT_ANSWER
+}
+
+model QuizQuestion {
+  id          String   @id @default(cuid())
+  videoId     String
+  type        QuizType
+  prompt      String   @db.Text
+  options     String[] // for MULTIPLE_CHOICE / TRUE_FALSE
+  answer      String   @db.Text
+  explanation String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@index([videoId])
+  @@map("quiz_questions")
+}
+
+// -----------------------------------------------------------------------------
+// Chat (transcript-grounded tutoring)
+// -----------------------------------------------------------------------------
+model ChatSession {
+  id        String   @id @default(cuid())
+  videoId   String
+  userId    String   @db.Uuid
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  video    Video         @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@index([videoId])
+  @@index([userId])
+  @@map("chat_sessions")
+}
+
+enum ChatRole {
+  USER
+  ASSISTANT
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      ChatRole
+  content   String   @db.Text
+  // Timestamp citations the answer referenced, e.g. [{ startSec, text }]
+  citations Json?
+  createdAt DateTime @default(now())
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("chat_messages")
+}
+
+// -----------------------------------------------------------------------------
+// Notes & organization
+// -----------------------------------------------------------------------------
+model Note {
+  id        String   @id @default(cuid())
+  userId    String   @db.Uuid
+  videoId   String?
+  content   String   @db.Text
+  timestampSec Float? // optional anchor into the video
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video Video? @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([videoId])
+  @@map("notes")
+}
+
+model Collection {
+  id          String   @id @default(cuid())
+  userId      String   @db.Uuid
+  name        String
+  description String?
+  color       String? // UI accent
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user   User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videos CollectionVideo[]
+
+  @@index([userId])
+  @@map("collections")
+}
+
+// Many-to-many join: a video can live in several collections.
+model CollectionVideo {
+  collectionId String
+  videoId      String
+  addedAt      DateTime @default(now())
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  video      Video      @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, videoId])
+  @@map("collection_videos")
+}
+
+// -----------------------------------------------------------------------------
+// Provider-agnostic AI artifact + chat persistence (used by Prisma repositories)
+// -----------------------------------------------------------------------------
+model AiArtifact {
+  id        String   @id @default(cuid())
+  videoId   String
+  kind      String // summary | takeaways | concepts | notes | flashcards | quiz
+  data      Json
+  model     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, kind])
+  @@map("ai_artifacts")
+}
+
+model ChatLog {
+  id        String   @id @default(cuid())
+  videoId   String
+  role      String // user | assistant
+  content   String   @db.Text
+  citations Json?
+  createdAt DateTime @default(now())
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@index([videoId, createdAt])
+  @@map("chat_logs")
+}
