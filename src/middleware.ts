@@ -18,6 +18,17 @@ const PROTECTED = [
 const AUTH_PAGES = [/^\/login/, /^\/signup/];
 
 export async function middleware(request: NextRequest) {
+  // If a Supabase redirect URL isn't allowlisted, auth email links fall back
+  // to the Site URL root with the code attached. Forward them to the callback.
+  if (
+    request.nextUrl.pathname === "/" &&
+    request.nextUrl.searchParams.has("code")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    return NextResponse.redirect(url);
+  }
+
   const { response, user } = await updateSession(request);
   const path = request.nextUrl.pathname;
 
