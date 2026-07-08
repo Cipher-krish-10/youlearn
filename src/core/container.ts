@@ -24,8 +24,12 @@ export function getAiContentService(): AiContentService {
 }
 
 export function getChatService(): ChatService {
-  const { videos } = getRepositories();
-  return new ChatService(getAIProvider(), getVectorStore(), videos);
+  const { videos, chats } = getRepositories();
+  return new ChatService(getAIProvider(), getVectorStore(), videos, chats);
+}
+
+export function getChatRepository() {
+  return getRepositories().chats;
 }
 
 export function getVideoRepository() {
@@ -34,4 +38,27 @@ export function getVideoRepository() {
 
 export function getUserRepository() {
   return getRepositories().users;
+}
+
+export function getNoteRepository() {
+  return getRepositories().notes;
+}
+
+export function getCollectionRepository() {
+  return getRepositories().collections;
+}
+
+/** Idempotently ensure a users row exists (satisfies FKs for videos/notes/collections). */
+export async function ensureUserRow(user: {
+  id: string;
+  email: string | null;
+  name: string | null;
+  avatarUrl: string | null;
+}) {
+  await getRepositories().users.upsert({
+    id: user.id,
+    email: user.email ?? `${user.id}@users.local`,
+    name: user.name,
+    avatarUrl: user.avatarUrl,
+  });
 }

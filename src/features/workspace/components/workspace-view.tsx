@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   BookMarked,
   FileText,
-  FolderPlus,
   Layers,
   ListChecks,
   ScrollText,
@@ -30,6 +29,7 @@ import { QuizPanel } from "@/features/workspace/components/quiz-panel";
 import { TutorChat } from "@/features/workspace/components/tutor-chat";
 import { ResourcesPanel } from "@/features/workspace/components/resources-panel";
 import { TranscriptUnavailable } from "@/features/workspace/components/transcript-unavailable";
+import { AddToCollection } from "@/features/collections/components/add-to-collection";
 
 export function WorkspaceView({ videoId }: { videoId: string }) {
   const videoQuery = useVideo(videoId);
@@ -72,15 +72,9 @@ export function WorkspaceView({ videoId }: { videoId: string }) {
           {video.channelTitle ?? "YouTube"}
         </span>
         <div className="ml-auto flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden sm:inline-flex"
-            onClick={() => toast.success("Saved to “AI Foundations”")}
-          >
-            <FolderPlus className="size-4" />
-            Save
-          </Button>
+          <span className="hidden sm:inline-flex">
+            <AddToCollection videoId={video.id} />
+          </span>
           <Button
             variant="ghost"
             size="icon"

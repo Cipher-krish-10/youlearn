@@ -15,3 +15,14 @@ export interface ChatMessage {
   citations?: ChatCitation[];
   isError?: boolean;
 }
+
+/** One row on the AI Chats page — the latest exchange per video. */
+export interface ConversationDTO {
+  videoId: string;
+  videoTitle: string;
+  thumbnailUrl: string | null;
+  lastMessage: string;
+  lastRole: "user" | "assistant";
+  messageCount: number;
+  lastAt: string;
+}

@@ -1,7 +1,10 @@
 import "server-only";
 import { formatTimestamp, truncate } from "@/lib/utils";
 import type { AIProvider } from "@/core/interfaces/ai-provider";
-import type { VideoRepository } from "@/core/interfaces/repositories";
+import type {
+  ChatRepository,
+  VideoRepository,
+} from "@/core/interfaces/repositories";
 import type {
   VectorMatch,
   VectorStoreProvider,
@@ -41,12 +44,34 @@ export class ChatService {
     private readonly ai: AIProvider,
     private readonly vectors: VectorStoreProvider,
     private readonly videos: VideoRepository,
+    private readonly chats: ChatRepository,
   ) {}
 
-  async answer(videoId: string, message: string): Promise<ChatAnswer> {
-    return this.ai.supportsEmbeddings
-      ? this.answerWithRetrieval(videoId, message)
-      : this.answerWithFullContext(videoId, message);
+  async answer(
+    videoId: string,
+    message: string,
+    userId: string,
+  ): Promise<ChatAnswer> {
+    const result = this.ai.supportsEmbeddings
+      ? await this.answerWithRetrieval(videoId, message)
+      : await this.answerWithFullContext(videoId, message);
+
+    // Persist the exchange for the Chats history (after a successful answer).
+    await this.chats.append({
+      userId,
+      videoId,
+      role: "user",
+      content: message,
+    });
+    await this.chats.append({
+      userId,
+      videoId,
+      role: "assistant",
+      content: result.answer,
+      citations: result.citations,
+    });
+
+    return result;
   }
 
   /** Embedding-backed retrieval path. */

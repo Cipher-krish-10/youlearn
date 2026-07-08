@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { ingestRequestSchema } from "@/lib/youtube";
 import { requireUser } from "@/lib/auth/session";
 import {
+  ensureUserRow,
   getIngestionService,
-  getUserRepository,
   getVideoRepository,
 } from "@/core/container";
 import { toVideoDTO } from "@/core/mappers/video-mapper";
@@ -12,6 +12,8 @@ import { errorResponse } from "@/server/http/respond";
 
 // Ingestion fetches from YouTube at request time.
 export const dynamic = "force-dynamic";
+// Metadata + transcript fetch can exceed serverless defaults.
+export const maxDuration = 60;
 
 /** POST /api/videos — run the ingestion pipeline for a pasted URL. */
 export async function POST(request: Request) {
@@ -27,12 +29,7 @@ export async function POST(request: Request) {
     }
 
     // Ensure a users row exists so the video's FK is satisfiable.
-    await getUserRepository().upsert({
-      id: user.id,
-      email: user.email ?? `${user.id}@users.local`,
-      name: user.name,
-      avatarUrl: user.avatarUrl,
-    });
+    await ensureUserRow(user);
 
     const video = await getIngestionService().ingest({
       url: parsed.data.url,

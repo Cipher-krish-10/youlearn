@@ -6,6 +6,9 @@ import { getChatService } from "@/core/container";
 import { InvalidInputError } from "@/core/errors/provider-errors";
 import { errorResponse } from "@/server/http/respond";
 
+// Chat answers run an LLM call over transcript context.
+export const maxDuration = 60;
+
 type Params = { params: Promise<{ id: string }> };
 
 const bodySchema = z.object({
@@ -27,7 +30,7 @@ export async function POST(req: Request, { params }: Params) {
       );
     }
 
-    const result = await getChatService().answer(id, parsed.data.message);
+    const result = await getChatService().answer(id, parsed.data.message, user.id);
     return NextResponse.json(result);
   } catch (err) {
     return errorResponse(err);

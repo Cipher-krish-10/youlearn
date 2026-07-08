@@ -64,6 +64,31 @@ Open http://localhost:3000.
 | `npm run format` | Prettier write |
 | `npm run db:studio` | Prisma Studio |
 
+## Deploying to Vercel
+
+1. Import the repo at [vercel.com/new](https://vercel.com/new) — the defaults work
+   (`npm run build` already runs `prisma generate`).
+2. Add the environment variables below in **Project Settings → Environment Variables**.
+3. In Supabase **Authentication → URL Configuration**, set the Site URL to your
+   Vercel domain and add `https://<your-domain>/**` to Redirect URLs.
+
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_APP_URL` | `https://<your-domain>` |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role (server-only) |
+| `DATABASE_URL` | Pooled connection string (port 6543, `?pgbouncer=true`) |
+| `DIRECT_URL` | Direct connection string (port 5432) |
+| `DATABASE_PROVIDER` | `prisma` — **required in production**; `memory` doesn't survive serverless invocations |
+| `AI_PROVIDER` | `groq` (or `openai` / `anthropic` / `gemini`) |
+| `GROQ_API_KEY` | Key for the selected AI provider |
+| `TRANSCRIPT_PROVIDER` | `supadata` |
+| `SUPADATA_API_KEY` | [supadata.ai](https://supadata.ai) key for live transcripts |
+| `VECTOR_STORE` | `memory` (Groq has no embeddings; use `pgvector` with OpenAI) |
+
+Long-running routes (ingestion, AI generation, chat) declare `maxDuration = 60`,
+which fits within the Hobby plan's limit.
+
 ## Roadmap
 
 Built as polished vertical slices, one milestone at a time: foundation →

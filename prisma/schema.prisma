@@ -269,6 +269,7 @@ model AiArtifact {
 
 model ChatLog {
   id        String   @id @default(cuid())
+  userId    String   @db.Uuid
   videoId   String
   role      String // user | assistant
   content   String   @db.Text
@@ -277,6 +278,7 @@ model ChatLog {
 
   video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
+  @@index([userId, createdAt])
   @@index([videoId, createdAt])
   @@map("chat_logs")
 }

@@ -28,6 +28,7 @@ export interface NewVideo {
 
 export interface ChatMessageEntity {
   id: string;
+  userId: string;
   videoId: string;
   role: "user" | "assistant";
   content: string;
@@ -40,5 +41,23 @@ export interface UserEntity {
   email: string;
   name: string | null;
   avatarUrl: string | null;
+  createdAt: Date;
+}
+
+export interface NoteEntity {
+  id: string;
+  userId: string;
+  videoId: string | null;
+  content: string;
+  tags: string[];
+  createdAt: Date;
+}
+
+export interface CollectionEntity {
+  id: string;
+  userId: string;
+  name: string;
+  description: string | null;
+  videoCount: number;
   createdAt: Date;
 }

@@ -5,6 +5,9 @@ import { getOwnedVideo } from "@/lib/auth/ownership";
 import { getAiContentService } from "@/core/container";
 import { errorResponse } from "@/server/http/respond";
 
+// AI generation over a full transcript can exceed serverless defaults.
+export const maxDuration = 60;
+
 type Params = { params: Promise<{ id: string; kind: string }> };
 
 function badKind() {
