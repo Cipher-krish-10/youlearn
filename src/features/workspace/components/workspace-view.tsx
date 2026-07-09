@@ -22,15 +22,13 @@ import { WorkspaceSkeleton } from "@/components/shared/skeletons";
 import { WorkspacePlayer } from "@/features/workspace/components/workspace-player";
 import { SummaryPanel } from "@/features/workspace/components/summary-panel";
 import { TranscriptPanel } from "@/features/workspace/components/transcript-panel";
-import { NotesPanel } from "@/features/workspace/components/notes-panel";
+import { NotesTab } from "@/features/workspace/components/notes-tab";
 import { FlashcardsPanel } from "@/features/workspace/components/flashcards-panel";
 import { QuizPanel } from "@/features/workspace/components/quiz-panel";
 import { TutorChat } from "@/features/workspace/components/tutor-chat";
 import { TranscriptUnavailable } from "@/features/workspace/components/transcript-unavailable";
 import { AddToCollection } from "@/features/collections/components/add-to-collection";
 import { usePlayer } from "@/features/workspace/player-context";
-import { VideoNotes } from "@/features/notes/components/video-notes";
-import { Separator } from "@/components/ui/separator";
 
 export function WorkspaceView({
   videoId,
@@ -158,9 +156,7 @@ export function WorkspaceView({
               </TabsContent>
 
               <TabsContent value="notes" className="mt-6">
-                <VideoNotes videoId={video.id} />
-                <Separator className="my-6" />
-                <NotesPanel
+                <NotesTab
                   videoId={video.id}
                   transcriptReady={transcriptReady}
                 />
