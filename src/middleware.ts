@@ -9,7 +9,6 @@ const PROTECTED = [
   /^\/notes/,
   /^\/flashcards/,
   /^\/chats/,
-  /^\/resources/,
   /^\/settings/,
   /^\/workspace/,
 ];

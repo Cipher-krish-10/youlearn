@@ -5,7 +5,6 @@ import {
   StickyNote,
   Layers,
   MessagesSquare,
-  BookMarked,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -23,7 +22,6 @@ export const primaryNav: NavItem[] = [
   { label: "Saved Notes", href: "/notes", icon: StickyNote },
   { label: "Flashcards", href: "/flashcards", icon: Layers },
   { label: "AI Chats", href: "/chats", icon: MessagesSquare },
-  { label: "Resources", href: "/resources", icon: BookMarked },
 ];
 
 export const secondaryNav: NavItem[] = [

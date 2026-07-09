@@ -4,7 +4,6 @@ import Link from "next/link";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  BookMarked,
   FileText,
   Layers,
   ListChecks,
@@ -27,7 +26,6 @@ import { NotesPanel } from "@/features/workspace/components/notes-panel";
 import { FlashcardsPanel } from "@/features/workspace/components/flashcards-panel";
 import { QuizPanel } from "@/features/workspace/components/quiz-panel";
 import { TutorChat } from "@/features/workspace/components/tutor-chat";
-import { ResourcesPanel } from "@/features/workspace/components/resources-panel";
 import { TranscriptUnavailable } from "@/features/workspace/components/transcript-unavailable";
 import { AddToCollection } from "@/features/collections/components/add-to-collection";
 
@@ -47,7 +45,6 @@ export function WorkspaceView({ videoId }: { videoId: string }) {
   }
 
   const video = videoQuery.data;
-  const isSample = video.isSample;
   const transcriptReady = video.transcriptStatus === "ready";
 
   const transcriptError =
@@ -119,10 +116,6 @@ export function WorkspaceView({ videoId }: { videoId: string }) {
                   <ListChecks />
                   Quiz
                 </TabsTrigger>
-                <TabsTrigger value="resources">
-                  <BookMarked />
-                  Resources
-                </TabsTrigger>
                 <TabsTrigger value="tutor" className="xl:hidden">
                   <Sparkles />
                   Tutor
@@ -169,10 +162,6 @@ export function WorkspaceView({ videoId }: { videoId: string }) {
                   videoId={video.id}
                   transcriptReady={transcriptReady}
                 />
-              </TabsContent>
-
-              <TabsContent value="resources" className="mt-6">
-                <ResourcesPanel isSample={isSample} />
               </TabsContent>
 
               <TabsContent value="tutor" className="mt-6 xl:hidden">
