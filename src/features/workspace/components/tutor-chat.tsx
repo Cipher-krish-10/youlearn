@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp, Clock, ScrollText, Sparkles } from "lucide-react";
 import { AiRequestError } from "@/features/ai/types";
-import { useSendChatMessage } from "@/features/chat/use-chat";
+import { useChatHistory, useSendChatMessage } from "@/features/chat/use-chat";
 import type { ChatMessage } from "@/features/chat/types";
 import { cn, formatTimestamp } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,15 @@ export function TutorChat({
   const [input, setInput] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
   const chat = useSendChatMessage(videoId);
+  const history = useChatHistory(videoId);
+
+  // Seed the thread with the saved conversation, unless the user already
+  // started typing before it arrived.
+  useEffect(() => {
+    if (history.data && history.data.length > 0) {
+      setMessages((m) => (m.length === 0 ? history.data : m));
+    }
+  }, [history.data]);
 
   const scrollToEnd = () =>
     requestAnimationFrame(() =>

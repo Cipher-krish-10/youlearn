@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   Bell,
   CreditCard,
@@ -79,6 +80,34 @@ const notifications = [
 export default function SettingsPage() {
   const authUser = useAuthUser();
   const [notif, setNotif] = useState(notifications);
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    supabase.auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata ?? {};
+      if (typeof meta.name === "string") setName(meta.name);
+      if (typeof meta.bio === "string") setBio(meta.bio);
+    });
+  }, []);
+
+  async function saveProfile() {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      toast.error("Name can't be empty.");
+      return;
+    }
+    setSavingProfile(true);
+    const supabase = createSupabaseBrowserClient();
+    const { error } = await supabase.auth.updateUser({
+      data: { name: trimmed, bio: bio.trim() },
+    });
+    setSavingProfile(false);
+    if (error) toast.error(error.message);
+    else toast.success("Profile updated");
+  }
 
   const save = () => toast.success("Changes saved");
 
@@ -114,7 +143,11 @@ export default function SettingsPage() {
           <SettingsCard
             title="Profile"
             description="This information appears across your workspace."
-            footer={<Button onClick={save}>Save changes</Button>}
+            footer={
+              <Button onClick={saveProfile} disabled={savingProfile}>
+                {savingProfile ? "Saving…" : "Save changes"}
+              </Button>
+            }
           >
             <div className="space-y-6">
               <div className="flex items-center gap-4">
@@ -137,8 +170,8 @@ export default function SettingsPage() {
                   <Label htmlFor="name">Full name</Label>
                   <Input
                     id="name"
-                    key={`name-${authUser?.id ?? "loading"}`}
-                    defaultValue={authUser?.name ?? ""}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -157,7 +190,9 @@ export default function SettingsPage() {
                 <Textarea
                   id="bio"
                   rows={3}
-                  defaultValue="Software engineer learning AI and system design one video at a time."
+                  placeholder="A line or two about what you're learning."
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
                 />
               </div>
             </div>

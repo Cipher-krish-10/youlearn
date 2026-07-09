@@ -29,7 +29,13 @@ import { TutorChat } from "@/features/workspace/components/tutor-chat";
 import { TranscriptUnavailable } from "@/features/workspace/components/transcript-unavailable";
 import { AddToCollection } from "@/features/collections/components/add-to-collection";
 
-export function WorkspaceView({ videoId }: { videoId: string }) {
+export function WorkspaceView({
+  videoId,
+  initialTab = "transcript",
+}: {
+  videoId: string;
+  initialTab?: string;
+}) {
   const videoQuery = useVideo(videoId);
   const transcriptQuery = useTranscript(
     videoId,
@@ -94,7 +100,7 @@ export function WorkspaceView({ videoId }: { videoId: string }) {
               durationSec={video.durationSec ?? 0}
             />
 
-            <Tabs defaultValue="transcript" className="mt-8">
+            <Tabs defaultValue={initialTab} className="mt-8">
               <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto p-1">
                 <TabsTrigger value="transcript">
                   <ScrollText />
