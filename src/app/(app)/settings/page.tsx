@@ -168,7 +168,7 @@ export default function SettingsPage() {
         <TabsContent value="appearance">
           <SettingsCard
             title="Appearance"
-            description="Choose how LearnTube looks on this device."
+            description="Choose how YouLearn looks on this device."
           >
             <AppearanceSettings />
           </SettingsCard>

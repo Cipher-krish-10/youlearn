@@ -8,7 +8,7 @@ import {
 
 const faqs = [
   {
-    q: "Which videos work with LearnTube?",
+    q: "Which videos work with YouLearn?",
     a: "Any public YouTube video that has captions — whether human-written or auto-generated. We read the existing transcript, so there's nothing to upload. Support for audio transcription of caption-less videos is on the roadmap.",
   },
   {
@@ -44,10 +44,10 @@ export function Faq() {
           <p className="mt-4 text-muted-foreground">
             Can&apos;t find what you&apos;re looking for? Reach out at{" "}
             <a
-              href="mailto:hello@learntube.app"
+              href="mailto:hello@youlearn.app"
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
-              hello@learntube.app
+              hello@youlearn.app
             </a>
             .
           </p>

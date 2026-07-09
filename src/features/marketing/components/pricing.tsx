@@ -9,7 +9,7 @@ const tiers = [
     name: "Free",
     price: "$0",
     cadence: "forever",
-    description: "Everything you need to try LearnTube on a few videos.",
+    description: "Everything you need to try YouLearn on a few videos.",
     cta: "Start for free",
     href: "/signup",
     featured: false,

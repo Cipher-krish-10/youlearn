@@ -17,7 +17,7 @@ const groups = [
       { label: "About", href: "#" },
       { label: "Blog", href: "#" },
       { label: "Careers", href: "#" },
-      { label: "Contact", href: "mailto:hello@learntube.app" },
+      { label: "Contact", href: "mailto:hello@youlearn.app" },
     ],
   },
   {
@@ -70,7 +70,7 @@ export function Footer() {
           ))}
         </div>
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t pt-8 text-sm text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} LearnTube. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} YouLearn. All rights reserved.</p>
           <p>Made for people who actually want to finish the video.</p>
         </div>
       </div>

@@ -5,7 +5,7 @@ const steps = [
     step: "01",
     title: "Paste a link",
     description:
-      "Drop in any public YouTube URL. LearnTube pulls the transcript and metadata in seconds — no downloads, no extensions.",
+      "Drop in any public YouTube URL. YouLearn pulls the transcript and metadata in seconds — no downloads, no extensions.",
   },
   {
     step: "02",

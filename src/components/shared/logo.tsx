@@ -20,7 +20,7 @@ export function Logo({
         <GraduationCap className="size-[15px]" />
       </span>
       {showWordmark && (
-        <span className="text-[15px] tracking-tight">LearnTube</span>
+        <span className="text-[15px] tracking-tight">YouLearn</span>
       )}
     </Link>
   );

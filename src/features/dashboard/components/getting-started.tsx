@@ -5,7 +5,7 @@ import { MessageSquareText, Plus, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddVideoDialog } from "@/components/shared/add-video-dialog";
 
-const STORAGE_KEY = "learntube:onboarding-dismissed";
+const STORAGE_KEY = "youlearn:onboarding-dismissed";
 
 const steps = [
   {
@@ -61,7 +61,7 @@ export function GettingStarted() {
 
       <div className="flex flex-col gap-1.5 pr-8">
         <h2 id="getting-started-heading" className="text-base font-medium">
-          Get started with LearnTube
+          Get started with YouLearn
         </h2>
         <p className="text-sm text-muted-foreground">
           Turn your first video into a workspace in three steps.

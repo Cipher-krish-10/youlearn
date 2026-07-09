@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "LearnTube — Turn any YouTube video into a learning workspace",
-    template: "%s · LearnTube",
+    default: "YouLearn — Turn any YouTube video into a learning workspace",
+    template: "%s · YouLearn",
   },
   description:
-    "LearnTube transforms YouTube videos into AI-powered learning workspaces with summaries, notes, transcript search, chat, flashcards, and quizzes.",
+    "YouLearn transforms YouTube videos into AI-powered learning workspaces with summaries, notes, transcript search, chat, flashcards, and quizzes.",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   ),

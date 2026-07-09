@@ -7,7 +7,7 @@ import "server-only";
  */
 export function singleton<T>(key: string, create: () => T): T {
   const store = globalThis as unknown as Record<string, T | undefined>;
-  const scopedKey = `__learntube_${key}`;
+  const scopedKey = `__youlearn_${key}`;
   store[scopedKey] ??= create();
   return store[scopedKey] as T;
 }

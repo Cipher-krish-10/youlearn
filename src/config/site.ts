@@ -1,9 +1,9 @@
 export const siteConfig = {
-  name: "LearnTube",
+  name: "YouLearn",
   tagline: "Turn any YouTube video into a learning workspace",
   description:
     "AI summaries, transcript search, grounded chat, flashcards, and quizzes — built around the videos you actually want to learn from.",
-  url: "https://learntube.app",
+  url: "https://youlearn.app",
   nav: [
     { label: "Features", href: "#features" },
     { label: "How it works", href: "#how-it-works" },

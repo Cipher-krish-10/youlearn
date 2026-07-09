@@ -18,7 +18,7 @@ const testimonials = [
   },
   {
     quote:
-      "I run a study group and we turn every conference talk into flashcards now. LearnTube replaced four different tools we were juggling.",
+      "I run a study group and we turn every conference talk into flashcards now. YouLearn replaced four different tools we were juggling.",
     name: "Priya Nair",
     role: "ML researcher",
     initials: "PN",
@@ -39,7 +39,7 @@ const testimonials = [
   },
   {
     quote:
-      "I prep for system design interviews entirely in LearnTube. Watch, summarize, generate a quiz, repeat. Got the offer last month.",
+      "I prep for system design interviews entirely in YouLearn. Watch, summarize, generate a quiz, repeat. Got the offer last month.",
     name: "Sofia Almeida",
     role: "Backend engineer",
     initials: "SA",

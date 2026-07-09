@@ -1,4 +1,4 @@
-# LearnTube
+# YouLearn
 
 Turn any YouTube video into an AI-powered learning workspace — summaries,
 grounded chat, transcript search, flashcards, quizzes, and notes.

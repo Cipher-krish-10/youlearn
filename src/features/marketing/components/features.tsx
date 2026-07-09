@@ -56,7 +56,7 @@ export function Features() {
             A complete learning workspace, not just a summarizer
           </h2>
           <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-            Most tools hand you a paragraph and call it a day. LearnTube gives
+            Most tools hand you a paragraph and call it a day. YouLearn gives
             you everything you need to actually learn the material.
           </p>
         </Reveal>

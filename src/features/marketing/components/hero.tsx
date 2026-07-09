@@ -90,7 +90,7 @@ export function Hero() {
               <span className="size-2.5 rounded-full border" />
               <span className="size-2.5 rounded-full border" />
               <span className="ml-2 text-xs text-muted-foreground">
-                learntube.app
+                youlearn.app
               </span>
             </div>
             <HeroPreview />
