@@ -12,6 +12,7 @@ export class MemoryNoteRepository implements NoteRepository {
       userId: input.userId,
       videoId: input.videoId ?? null,
       content: input.content,
+      timestampSec: input.timestampSec ?? null,
       tags: input.tags,
       createdAt: new Date(),
     };

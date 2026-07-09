@@ -49,6 +49,8 @@ export interface NoteEntity {
   userId: string;
   videoId: string | null;
   content: string;
+  /** Optional anchor into the video, in seconds. */
+  timestampSec: number | null;
   tags: string[];
   createdAt: Date;
 }

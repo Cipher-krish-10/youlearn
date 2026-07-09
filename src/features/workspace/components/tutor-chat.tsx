@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp, Clock, ScrollText, Sparkles } from "lucide-react";
 import { AiRequestError } from "@/features/ai/types";
 import { useChatHistory, useSendChatMessage } from "@/features/chat/use-chat";
+import { usePlayer } from "@/features/workspace/player-context";
 import type { ChatMessage } from "@/features/chat/types";
 import { cn, formatTimestamp } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ export function TutorChat({
   const endRef = useRef<HTMLDivElement>(null);
   const chat = useSendChatMessage(videoId);
   const history = useChatHistory(videoId);
+  const player = usePlayer();
 
   // Seed the thread with the saved conversation, unless the user already
   // started typing before it arrived.
@@ -129,14 +131,15 @@ export function TutorChat({
             {msg.citations && msg.citations.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {msg.citations.map((c, i) => (
-                  <span
+                  <button
                     key={i}
                     title={c.text}
-                    className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[11px] text-muted-foreground"
+                    onClick={() => player.seekTo(c.startSec)}
+                    className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[11px] text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
                   >
                     <Clock className="size-3" />
                     {formatTimestamp(c.startSec)}
-                  </span>
+                  </button>
                 ))}
               </div>
             )}

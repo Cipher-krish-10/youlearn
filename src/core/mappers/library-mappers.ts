@@ -7,6 +7,7 @@ export function toNoteDTO(n: NoteEntity): NoteDTO {
     id: n.id,
     videoId: n.videoId,
     content: n.content,
+    timestampSec: n.timestampSec,
     tags: n.tags,
     createdAt: n.createdAt.toISOString(),
   };

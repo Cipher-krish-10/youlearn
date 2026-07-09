@@ -53,6 +53,7 @@ export interface NewNote {
   userId: string;
   videoId?: string | null;
   content: string;
+  timestampSec?: number | null;
   tags: string[];
 }
 

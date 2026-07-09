@@ -28,14 +28,20 @@ import { QuizPanel } from "@/features/workspace/components/quiz-panel";
 import { TutorChat } from "@/features/workspace/components/tutor-chat";
 import { TranscriptUnavailable } from "@/features/workspace/components/transcript-unavailable";
 import { AddToCollection } from "@/features/collections/components/add-to-collection";
+import { usePlayer } from "@/features/workspace/player-context";
+import { VideoNotes } from "@/features/notes/components/video-notes";
+import { Separator } from "@/components/ui/separator";
 
 export function WorkspaceView({
   videoId,
   initialTab = "transcript",
+  startSec,
 }: {
   videoId: string;
   initialTab?: string;
+  startSec?: number;
 }) {
+  const player = usePlayer();
   const videoQuery = useVideo(videoId);
   const transcriptQuery = useTranscript(
     videoId,
@@ -98,6 +104,7 @@ export function WorkspaceView({
               title={video.title}
               channel={video.channelTitle}
               durationSec={video.durationSec ?? 0}
+              startSec={startSec}
             />
 
             <Tabs defaultValue={initialTab} className="mt-8">
@@ -135,6 +142,7 @@ export function WorkspaceView({
                       lines={transcriptQuery.data ?? []}
                       isLoading={transcriptQuery.isLoading}
                       errorMessage={transcriptError}
+                      onSeek={player.seekTo}
                     />
                   </div>
                 ) : (
@@ -150,6 +158,8 @@ export function WorkspaceView({
               </TabsContent>
 
               <TabsContent value="notes" className="mt-6">
+                <VideoNotes videoId={video.id} />
+                <Separator className="my-6" />
                 <NotesPanel
                   videoId={video.id}
                   transcriptReady={transcriptReady}

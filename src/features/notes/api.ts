@@ -14,6 +14,7 @@ export async function createNoteRequest(input: {
   content: string;
   tags: string[];
   videoId?: string | null;
+  timestampSec?: number | null;
 }): Promise<NoteDTO> {
   const res = await fetch("/api/notes", {
     method: "POST",

@@ -10,6 +10,7 @@ const createSchema = z.object({
   content: z.string().trim().min(1, "Write something first.").max(5000),
   tags: z.array(z.string().trim().min(1)).max(10).default([]),
   videoId: z.string().optional().nullable(),
+  timestampSec: z.number().min(0).max(86_400).optional().nullable(),
 });
 
 /** GET /api/notes — the user's notes. */
@@ -40,6 +41,7 @@ export async function POST(request: Request) {
       content: parsed.data.content,
       tags: parsed.data.tags,
       videoId: parsed.data.videoId ?? null,
+      timestampSec: parsed.data.timestampSec ?? null,
     });
     return NextResponse.json({ note: toNoteDTO(note) }, { status: 201 });
   } catch (err) {

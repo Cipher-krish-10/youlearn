@@ -11,6 +11,7 @@ export class PrismaNoteRepository implements NoteRepository {
         userId: input.userId,
         videoId: input.videoId ?? null,
         content: input.content,
+        timestampSec: input.timestampSec ?? null,
         tags: input.tags,
       },
     });
@@ -19,6 +20,7 @@ export class PrismaNoteRepository implements NoteRepository {
       userId: n.userId,
       videoId: n.videoId,
       content: n.content,
+      timestampSec: n.timestampSec,
       tags: n.tags,
       createdAt: n.createdAt,
     };
@@ -34,6 +36,7 @@ export class PrismaNoteRepository implements NoteRepository {
       userId: n.userId,
       videoId: n.videoId,
       content: n.content,
+      timestampSec: n.timestampSec,
       tags: n.tags,
       createdAt: n.createdAt,
     }));

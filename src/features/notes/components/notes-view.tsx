@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Plus, StickyNote, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Clock, Loader2, Plus, StickyNote, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useCreateNote, useDeleteNote, useNotes } from "@/features/notes/use-notes";
-import { timeAgo } from "@/lib/utils";
+import { formatTimestamp, timeAgo } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
@@ -103,6 +104,16 @@ export function NotesView() {
               key={note.id}
               className="group flex flex-col rounded-lg border bg-card p-4 transition-colors hover:border-foreground/20"
             >
+              {note.timestampSec != null && note.videoId && (
+                <Link
+                  href={`/workspace/${note.videoId}?tab=notes&t=${Math.floor(note.timestampSec)}`}
+                  className="mb-2 inline-flex w-fit items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[11px] text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                  title="Open the video at this moment"
+                >
+                  <Clock className="size-3" />
+                  {formatTimestamp(note.timestampSec)}
+                </Link>
+              )}
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                 {note.content}
               </p>
