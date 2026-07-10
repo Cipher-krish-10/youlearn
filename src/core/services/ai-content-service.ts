@@ -1,5 +1,6 @@
 import "server-only";
 import type { AIProvider } from "@/core/interfaces/ai-provider";
+import type { CacheProvider } from "@/core/interfaces/cache-provider";
 import type {
   ArtifactRepository,
   VideoRepository,
@@ -12,8 +13,13 @@ import type {
 } from "@/core/types/ai";
 import type { TranscriptSegment } from "@/core/types/transcript";
 import { NotFoundError, TranscriptUnavailableError } from "@/core/errors/provider-errors";
+import { logger } from "@/core/logging/logger";
 
 const MAX_TRANSCRIPT_CHARS = 14_000;
+const ARTIFACT_TTL_SEC = 60 * 60; // Postgres is the source of truth; 1h hot copy.
+
+const artifactKey = (kind: ArtifactKind, videoId: string) =>
+  `${kind}:${videoId}`;
 
 function buildTranscriptText(segments: TranscriptSegment[]): string {
   const full = segments.map((s) => s.text).join(" ");
@@ -25,17 +31,28 @@ function buildTranscriptText(segments: TranscriptSegment[]): string {
 /**
  * Generates and caches AI artifacts. Dispatches to the AIProvider's domain
  * methods — it has no idea which model is behind them. Swapping AI_PROVIDER
- * changes nothing here.
+ * changes nothing here. Reads go cache → Postgres; writes go Postgres → cache.
  */
 export class AiContentService {
   constructor(
     private readonly ai: AIProvider,
     private readonly artifacts: ArtifactRepository,
     private readonly videos: VideoRepository,
+    private readonly cache: CacheProvider,
   ) {}
 
-  getArtifact<K extends ArtifactKind>(videoId: string, kind: K) {
-    return this.artifacts.get(videoId, kind);
+  async getArtifact<K extends ArtifactKind>(
+    videoId: string,
+    kind: K,
+  ): Promise<Artifact<K> | null> {
+    const key = artifactKey(kind, videoId);
+    const hot = await this.cache.get<Artifact<K>>(key);
+    logger.debug("cache.read", { operation: key, hit: hot !== null });
+    if (hot) return hot;
+
+    const stored = await this.artifacts.get(videoId, kind);
+    if (stored) await this.cache.set(key, stored, ARTIFACT_TTL_SEC);
+    return stored;
   }
 
   async generate<K extends ArtifactKind>(
@@ -44,7 +61,7 @@ export class AiContentService {
     { force = false }: { force?: boolean } = {},
   ): Promise<Artifact<K>> {
     if (!force) {
-      const cached = await this.artifacts.get(videoId, kind);
+      const cached = await this.getArtifact(videoId, kind);
       if (cached) return cached;
     }
 
@@ -64,7 +81,14 @@ export class AiContentService {
       transcriptText: buildTranscriptText(segments),
     };
 
+    const startedAt = Date.now();
     const data = (await this.run(kind, input)) as ArtifactDataMap[K];
+    logger.info("ai.generate", {
+      provider: this.ai.name,
+      operation: kind,
+      latencyMs: Date.now() - startedAt,
+    });
+
     const artifact: Artifact<K> = {
       kind,
       data,
@@ -72,6 +96,7 @@ export class AiContentService {
       model: this.ai.name,
     };
     await this.artifacts.save(videoId, artifact);
+    await this.cache.set(artifactKey(kind, videoId), artifact, ARTIFACT_TTL_SEC);
     return artifact;
   }
 

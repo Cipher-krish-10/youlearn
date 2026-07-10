@@ -4,6 +4,7 @@ import type {
   ChatRepository,
   CollectionRepository,
   NoteRepository,
+  QuotaRepository,
   UserRepository,
   VideoRepository,
 } from "@/core/interfaces/repositories";
@@ -15,12 +16,14 @@ import { MemoryChatRepository } from "@/core/repositories/memory/memory-chat-rep
 import { MemoryUserRepository } from "@/core/repositories/memory/memory-user-repository";
 import { MemoryNoteRepository } from "@/core/repositories/memory/memory-note-repository";
 import { MemoryCollectionRepository } from "@/core/repositories/memory/memory-collection-repository";
+import { MemoryQuotaRepository } from "@/core/repositories/memory/memory-quota-repository";
 import { PrismaVideoRepository } from "@/core/repositories/prisma/prisma-video-repository";
 import { PrismaArtifactRepository } from "@/core/repositories/prisma/prisma-artifact-repository";
 import { PrismaChatRepository } from "@/core/repositories/prisma/prisma-chat-repository";
 import { PrismaUserRepository } from "@/core/repositories/prisma/prisma-user-repository";
 import { PrismaNoteRepository } from "@/core/repositories/prisma/prisma-note-repository";
 import { PrismaCollectionRepository } from "@/core/repositories/prisma/prisma-collection-repository";
+import { PrismaQuotaRepository } from "@/core/repositories/prisma/prisma-quota-repository";
 
 export interface Repositories {
   videos: VideoRepository;
@@ -29,6 +32,7 @@ export interface Repositories {
   users: UserRepository;
   notes: NoteRepository;
   collections: CollectionRepository;
+  quotas: QuotaRepository;
 }
 
 /** Returns the repository set selected by DATABASE_PROVIDER. */
@@ -42,6 +46,7 @@ export function getRepositories(): Repositories {
       users: new PrismaUserRepository(),
       notes: new PrismaNoteRepository(),
       collections: new PrismaCollectionRepository(),
+      quotas: new PrismaQuotaRepository(),
     };
   }
   // Memory repos are stateful — singletons so data survives across requests.
@@ -55,5 +60,6 @@ export function getRepositories(): Repositories {
       "collectionRepo",
       () => new MemoryCollectionRepository(),
     ),
+    quotas: singleton("quotaRepo", () => new MemoryQuotaRepository()),
   };
 }

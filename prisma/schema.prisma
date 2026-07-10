@@ -26,6 +26,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Plan + monthly usage counters. Counters lazily reset when
+  // usageResetMonth falls behind the current "YYYY-MM".
+  plan            String @default("free")
+  workspaceCount  Int    @default(0)
+  chatCount       Int    @default(0)
+  generationCount Int    @default(0)
+  exportCount     Int    @default(0)
+  usageResetMonth String @default("")
+
   videos      Video[]
   collections Collection[]
   notes       Note[]

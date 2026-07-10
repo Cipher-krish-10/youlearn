@@ -17,6 +17,7 @@ export type ErrorCode =
   | "NOT_FOUND"
   | "NETWORK"
   | "GENERATION_FAILED"
+  | "QUOTA_EXCEEDED"
   | "UNKNOWN";
 
 export abstract class ProviderError extends Error {
@@ -70,6 +71,11 @@ export class GenerationFailedError extends ProviderError {
   readonly code = "GENERATION_FAILED";
 }
 
+/** The user's plan ran out of the requested resource this month. */
+export class QuotaExceededError extends ProviderError {
+  readonly code = "QUOTA_EXCEEDED";
+}
+
 /** Non-provider domain errors that still need a stable envelope. */
 export class InvalidInputError extends ProviderError {
   readonly code: ErrorCode;
@@ -106,6 +112,8 @@ export function httpStatusForCode(code: ErrorCode): number {
       return 401;
     case "RATE_LIMITED":
       return 429;
+    case "QUOTA_EXCEEDED":
+      return 402;
     case "NOT_CONFIGURED":
     case "AUTHENTICATION":
       return 503;

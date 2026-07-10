@@ -3,9 +3,11 @@ import { getAIProvider } from "@/core/factories/ai-provider-factory";
 import { getTranscriptProvider } from "@/core/factories/transcript-provider-factory";
 import { getVectorStore } from "@/core/factories/vector-store-factory";
 import { getRepositories } from "@/core/factories/repository-factory";
+import { getCacheProvider } from "@/core/factories/cache-provider-factory";
 import { IngestionService } from "@/core/services/ingestion-service";
 import { AiContentService } from "@/core/services/ai-content-service";
 import { ChatService } from "@/core/services/chat-service";
+import { QuotaService } from "@/core/services/quota-service";
 
 /**
  * Composition root. Routes depend only on these factory functions — never on a
@@ -20,12 +22,27 @@ export function getIngestionService(): IngestionService {
 
 export function getAiContentService(): AiContentService {
   const { artifacts, videos } = getRepositories();
-  return new AiContentService(getAIProvider(), artifacts, videos);
+  return new AiContentService(
+    getAIProvider(),
+    artifacts,
+    videos,
+    getCacheProvider(),
+  );
 }
 
 export function getChatService(): ChatService {
   const { videos, chats } = getRepositories();
-  return new ChatService(getAIProvider(), getVectorStore(), videos, chats);
+  return new ChatService(
+    getAIProvider(),
+    getVectorStore(),
+    videos,
+    chats,
+    getCacheProvider(),
+  );
+}
+
+export function getQuotaService(): QuotaService {
+  return new QuotaService(getRepositories().quotas);
 }
 
 export function getChatRepository() {

@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { isArtifactKind } from "@/features/ai/types";
 import { requireUser } from "@/lib/auth/session";
 import { getOwnedVideo } from "@/lib/auth/ownership";
-import { getAiContentService } from "@/core/container";
+import { getAiContentService, getQuotaService } from "@/core/container";
 import { errorResponse } from "@/server/http/respond";
+import { enforceRateLimit } from "@/server/http/rate-limit";
 
 // AI generation over a full transcript can exceed serverless defaults.
 export const maxDuration = 60;
@@ -47,7 +48,17 @@ export async function POST(req: Request, { params }: Params) {
     await getOwnedVideo(id, user.id);
 
     const force = new URL(req.url).searchParams.get("force") === "1";
-    const artifact = await getAiContentService().generate(id, kind, { force });
+    const service = getAiContentService();
+
+    // Serving an existing artifact is free — only real LLM work is metered.
+    if (!force) {
+      const cached = await service.getArtifact(id, kind);
+      if (cached) return NextResponse.json({ artifact: cached });
+    }
+    await enforceRateLimit("generate", user.id);
+    await getQuotaService().consume(user.id, "generation");
+
+    const artifact = await service.generate(id, kind, { force: true });
     return NextResponse.json({ artifact });
   } catch (err) {
     return errorResponse(err);

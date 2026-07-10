@@ -1,10 +1,13 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { formatTimestamp, truncate } from "@/lib/utils";
 import type { AIProvider } from "@/core/interfaces/ai-provider";
+import type { CacheProvider } from "@/core/interfaces/cache-provider";
 import type {
   ChatRepository,
   VideoRepository,
 } from "@/core/interfaces/repositories";
+import { logger } from "@/core/logging/logger";
 import type {
   VectorMatch,
   VectorStoreProvider,
@@ -24,6 +27,16 @@ export interface ChatAnswer {
 
 const RETRIEVE_K = 5;
 const MAX_CONTEXT_CHARS = 30_000;
+const ANSWER_TTL_SEC = 24 * 60 * 60; // transcripts are immutable, answers keep.
+
+/** Same question (modulo case/whitespace) about the same video → same key. */
+function answerKey(videoId: string, message: string): string {
+  const hash = createHash("sha256")
+    .update(message.trim().toLowerCase())
+    .digest("hex")
+    .slice(0, 32);
+  return `chat:${videoId}:${hash}`;
+}
 
 const NO_MATCH_ANSWER =
   "I couldn't find anything about that in this video. Try rephrasing, or ask about a topic it covers.";
@@ -45,6 +58,7 @@ export class ChatService {
     private readonly vectors: VectorStoreProvider,
     private readonly videos: VideoRepository,
     private readonly chats: ChatRepository,
+    private readonly cache: CacheProvider,
   ) {}
 
   async answer(
@@ -52,9 +66,17 @@ export class ChatService {
     message: string,
     userId: string,
   ): Promise<ChatAnswer> {
-    const result = this.ai.supportsEmbeddings
-      ? await this.answerWithRetrieval(videoId, message)
-      : await this.answerWithFullContext(videoId, message);
+    const key = answerKey(videoId, message);
+    const cached = await this.cache.get<ChatAnswer>(key);
+    logger.debug("cache.read", { operation: "chat.answer", hit: cached !== null });
+
+    const result =
+      cached ??
+      (this.ai.supportsEmbeddings
+        ? await this.answerWithRetrieval(videoId, message)
+        : await this.answerWithFullContext(videoId, message));
+
+    if (!cached) await this.cache.set(key, result, ANSWER_TTL_SEC);
 
     // Persist the exchange for the Chats history (after a successful answer).
     await this.chats.append({

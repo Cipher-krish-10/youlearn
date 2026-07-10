@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
-import { ingestRequestSchema } from "@/lib/youtube";
+import { extractYoutubeId, ingestRequestSchema } from "@/lib/youtube";
 import { requireUser } from "@/lib/auth/session";
 import {
   ensureUserRow,
   getIngestionService,
+  getQuotaService,
   getVideoRepository,
 } from "@/core/container";
 import { toVideoDTO } from "@/core/mappers/video-mapper";
 import { InvalidInputError } from "@/core/errors/provider-errors";
 import { errorResponse } from "@/server/http/respond";
+import { enforceRateLimit } from "@/server/http/rate-limit";
 
 // Ingestion fetches from YouTube at request time.
 export const dynamic = "force-dynamic";
@@ -19,6 +21,7 @@ export const maxDuration = 60;
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
+    await enforceRateLimit("ingest", user.id);
 
     const json = await request.json().catch(() => null);
     const parsed = ingestRequestSchema.safeParse(json);
@@ -30,6 +33,16 @@ export async function POST(request: Request) {
 
     // Ensure a users row exists so the video's FK is satisfiable.
     await ensureUserRow(user);
+
+    // Re-opening a video that's already in the library is free; only a new
+    // workspace consumes quota.
+    const youtubeId = extractYoutubeId(parsed.data.url);
+    const existing = youtubeId
+      ? await getVideoRepository().getByYoutubeId(youtubeId, user.id)
+      : null;
+    if (!existing || existing.status !== "READY") {
+      await getQuotaService().consume(user.id, "workspace");
+    }
 
     const video = await getIngestionService().ingest({
       url: parsed.data.url,

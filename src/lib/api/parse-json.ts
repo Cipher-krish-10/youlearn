@@ -1,4 +1,5 @@
 import type { HttpError } from "@/lib/api/http-error";
+import { emitQuotaExceeded } from "@/features/billing/quota-events";
 
 interface ErrorEnvelope {
   error?: { code?: string; message?: string };
@@ -17,11 +18,12 @@ export async function parseJson<T>(
   const data = await res.json().catch(() => null);
   if (!res.ok) {
     const body = data as ErrorEnvelope | null;
-    throw makeError(
-      body?.error?.code ?? "UNKNOWN",
-      body?.error?.message ?? fallbackMessage,
-      res.status,
-    );
+    const code = body?.error?.code ?? "UNKNOWN";
+    const message = body?.error?.message ?? fallbackMessage;
+    // Central interception: any quota failure opens the upgrade dialog
+    // instead of each feature showing a generic error.
+    if (code === "QUOTA_EXCEEDED") emitQuotaExceeded(message);
+    throw makeError(code, message, res.status);
   }
   return data as T;
 }

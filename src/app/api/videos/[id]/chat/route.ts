@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { getOwnedVideo } from "@/lib/auth/ownership";
-import { getChatRepository, getChatService } from "@/core/container";
+import {
+  getChatRepository,
+  getChatService,
+  getQuotaService,
+} from "@/core/container";
 import { InvalidInputError } from "@/core/errors/provider-errors";
 import { errorResponse } from "@/server/http/respond";
+import { enforceRateLimit } from "@/server/http/rate-limit";
 
 // Chat answers run an LLM call over transcript context.
 export const maxDuration = 60;
@@ -48,6 +53,9 @@ export async function POST(req: Request, { params }: Params) {
         parsed.error.issues[0]?.message ?? "Invalid request.",
       );
     }
+
+    await enforceRateLimit("chat", user.id);
+    await getQuotaService().consume(user.id, "chat");
 
     const result = await getChatService().answer(id, parsed.data.message, user.id);
     return NextResponse.json(result);

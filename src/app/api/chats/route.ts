@@ -19,11 +19,14 @@ export async function GET() {
       else byVideo.set(m.videoId, { last: m, count: 1 });
     }
 
-    const videoRepo = getVideoRepository();
+    // One query for all the user's videos instead of one per conversation.
+    const videos = await getVideoRepository().list(user.id);
+    const videoById = new Map(videos.map((v) => [v.id, v]));
+
     const conversations: ConversationDTO[] = [];
     for (const [videoId, g] of byVideo) {
-      const video = await videoRepo.get(videoId);
-      if (!video || video.userId !== user.id) continue;
+      const video = videoById.get(videoId);
+      if (!video) continue;
       conversations.push({
         videoId,
         videoTitle: video.title,

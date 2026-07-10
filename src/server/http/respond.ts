@@ -16,5 +16,12 @@ export function errorResponse(err: unknown) {
       errorMessage: err instanceof Error ? err.message : String(err),
     });
   }
-  return NextResponse.json({ error: { code, message } }, { status });
+  return NextResponse.json(
+    { error: { code, message } },
+    {
+      status,
+      // Fixed one-minute windows, so a minute is always a safe retry hint.
+      headers: status === 429 ? { "Retry-After": "60" } : undefined,
+    },
+  );
 }

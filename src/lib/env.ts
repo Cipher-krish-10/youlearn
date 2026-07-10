@@ -60,6 +60,10 @@ const serverSchema = z.object({
   // RAG vector backend. "pgvector" requires a database + the pgvector migration.
   VECTOR_STORE: z.enum(["memory", "pgvector"]).default("memory"),
   DATABASE_PROVIDER: z.enum(["memory", "prisma"]).default("memory"),
+  // Cache backend. "upstash" requires the two UPSTASH_* values below.
+  CACHE_PROVIDER: z.enum(["memory", "upstash"]).default("memory"),
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 });
 
 function format(error: z.ZodError): string {

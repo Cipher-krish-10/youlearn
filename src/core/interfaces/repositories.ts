@@ -42,6 +42,29 @@ export interface ChatRepository {
   listByUser(userId: string, limit?: number): Promise<ChatMessageEntity[]>;
 }
 
+export type QuotaKind = "workspace" | "chat" | "generation" | "export";
+
+export interface UsageSnapshot {
+  plan: string;
+  month: string;
+  counts: Record<QuotaKind, number>;
+}
+
+/** Atomic per-user usage counters with lazy monthly reset. */
+export interface QuotaRepository {
+  /**
+   * Reset counters if `month` is new, then increment `kind` only while it's
+   * below `limit`. Returns false when the limit is already reached.
+   */
+  consume(
+    userId: string,
+    kind: QuotaKind,
+    limit: number,
+    month: string,
+  ): Promise<boolean>;
+  snapshot(userId: string, month: string): Promise<UsageSnapshot>;
+}
+
 /** Persistence for users (ready for when real auth lands). */
 export interface UserRepository {
   getById(id: string): Promise<UserEntity | null>;
