@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Loader2 } from "lucide-react";
@@ -16,6 +16,15 @@ export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Surface OAuth/callback failures passed back in the URL hash.
+  useEffect(() => {
+    const match = window.location.hash.match(/auth_error=([^&]+)/);
+    if (match?.[1]) {
+      setError(decodeURIComponent(match[1]));
+      history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
