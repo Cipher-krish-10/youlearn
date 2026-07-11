@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/react-query/query-keys";
+import { USAGE_QUERY_KEY } from "@/features/billing/use-usage";
 import { ApiError } from "@/features/ingestion/types";
 import {
   getTranscriptRequest,
@@ -25,6 +26,8 @@ export function useIngestVideo() {
     mutationFn: (url: string) => ingestVideoRequest(url),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.videos.all });
+      // A new workspace consumed quota — refresh the sidebar plan card.
+      queryClient.invalidateQueries({ queryKey: USAGE_QUERY_KEY });
     },
   });
 }

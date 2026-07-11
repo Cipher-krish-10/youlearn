@@ -4,6 +4,7 @@ import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { primaryNav, secondaryNav } from "@/config/nav";
+import { useUsage } from "@/features/billing/use-usage";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -57,21 +58,45 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
         {secondaryNav.map(renderItem)}
       </nav>
 
-      <div className="border-t p-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-sm font-medium">Free plan</p>
-            <p className="truncate text-xs text-muted-foreground">
-              3 of 5 videos used
-            </p>
-          </div>
-          <Button size="sm" variant="outline" onClick={onNavigate} asChild>
-            <Link href="/settings">Upgrade</Link>
-          </Button>
+      <PlanCard onNavigate={onNavigate} />
+    </div>
+  );
+}
+
+/** Live plan usage from /api/me/usage — workspaces consumed this month. */
+function PlanCard({ onNavigate }: { onNavigate?: () => void }) {
+  const { data } = useUsage();
+
+  const planName = data
+    ? `${data.plan.charAt(0).toUpperCase()}${data.plan.slice(1)} plan`
+    : "Free plan";
+  const used = data?.counts.workspace;
+  const limit = data?.limits?.workspace;
+  const pct =
+    used != null && limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+
+  return (
+    <div className="border-t p-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-sm font-medium">{planName}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {used != null && limit
+              ? `${used} of ${limit} videos used this month`
+              : data && !data.limits
+                ? "Unlimited videos"
+                : " "}
+          </p>
         </div>
-        <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-muted">
-          <div className="h-full w-3/5 rounded-full bg-primary" />
-        </div>
+        <Button size="sm" variant="outline" onClick={onNavigate} asChild>
+          <Link href="/settings">Upgrade</Link>
+        </Button>
+      </div>
+      <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-300"
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );
