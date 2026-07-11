@@ -17,10 +17,10 @@ export function LogoMark({ className }: { className?: string }) {
       className={className}
       aria-hidden
     >
-      <path d="M4.5 13.5 10.5 17.5 19.6 5.6" />
-      <polyline points="14.8 5.6 19.6 5.6 19.6 10.4" />
-      <circle cx="4.5" cy="13.5" r="2.1" fill="currentColor" stroke="none" />
-      <circle cx="10.5" cy="17.5" r="2.1" fill="currentColor" stroke="none" />
+      <path d="M2.2 19.2 6.2 12.4 11.4 16.6 19.8 5.4" />
+      <polyline points="15.2 5.4 19.8 5.4 19.8 10" />
+      <circle cx="6.2" cy="12.4" r="2.1" fill="currentColor" stroke="none" />
+      <circle cx="11.4" cy="16.6" r="2.1" fill="currentColor" stroke="none" />
     </svg>
   );
 }
