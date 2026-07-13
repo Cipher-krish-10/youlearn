@@ -80,8 +80,8 @@ export default function SignupPage() {
 
   return (
     <div>
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">
+      <div className="space-y-2.5 text-center">
+        <h1 className="text-3xl font-bold tracking-tight">
           Create your account
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -145,7 +145,7 @@ export default function SignupPage() {
             </p>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="h-10 w-full" disabled={loading}>
             {loading && <Loader2 className="size-4 animate-spin" />}
             {loading ? "Creating account…" : "Create account"}
           </Button>
