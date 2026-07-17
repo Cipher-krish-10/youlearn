@@ -22,7 +22,7 @@ export function NotesPanel({
       isGenerated={!!notes.data}
       isBusy={notes.isLoading || gen.isPending}
       error={gen.error}
-      onGenerate={() => gen.mutate(undefined)}
+      onGenerate={(force) => gen.mutate({ force })}
     >
       <div className="space-y-7">
         {notes.data?.data.sections.map((section) => (

@@ -15,6 +15,7 @@ import type {
 import type { TranscriptSegment } from "@/core/types/transcript";
 import { NotFoundError, TranscriptUnavailableError } from "@/core/errors/provider-errors";
 import { chunkTranscript } from "@/core/services/chunking";
+import { renderTranscript } from "@/core/services/transcript-sampling";
 
 export interface ChatCitation {
   startSec: number;
@@ -126,12 +127,13 @@ export class ChatService {
     message: string,
   ): Promise<ChatAnswer> {
     const segments = await this.getReadyTranscript(videoId);
-    let context = "";
-    for (const s of segments) {
-      const line = `[${formatTimestamp(s.startSec)}] ${s.text}\n`;
-      if (context.length + line.length > MAX_CONTEXT_CHARS) break;
-      context += line;
-    }
+    // Sample evenly across the whole video so the tutor can answer about later
+    // sections too, not just the opening minutes.
+    const context = renderTranscript(
+      segments,
+      MAX_CONTEXT_CHARS,
+      (s) => `[${formatTimestamp(s.startSec)}] ${s.text}\n`,
+    );
     const answer = await this.ai.chat({ question: message, context });
     return { answer, citations: [] };
   }

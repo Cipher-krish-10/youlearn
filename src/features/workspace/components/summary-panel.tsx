@@ -28,10 +28,10 @@ export function SummaryPanel({
     takeawaysGen.isPending ||
     conceptsGen.isPending;
 
-  const generateAll = () => {
-    summaryGen.mutate(undefined);
-    takeawaysGen.mutate(undefined);
-    conceptsGen.mutate(undefined);
+  const generateAll = (force: boolean) => {
+    summaryGen.mutate({ force });
+    takeawaysGen.mutate({ force });
+    conceptsGen.mutate({ force });
   };
 
   return (
@@ -42,7 +42,7 @@ export function SummaryPanel({
       isGenerated={!!summary.data}
       isBusy={isBusy}
       error={summaryGen.error}
-      onGenerate={generateAll}
+      onGenerate={(force) => generateAll(force)}
     >
       <div className="space-y-8">
         <Section title="Executive summary">

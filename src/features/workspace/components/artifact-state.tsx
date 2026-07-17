@@ -13,7 +13,8 @@ interface ArtifactStateProps {
   isGenerated: boolean;
   isBusy: boolean;
   error: unknown;
-  onGenerate: () => void;
+  /** `force` is true for the Regenerate action, false for first-time generate. */
+  onGenerate: (force: boolean) => void;
   children: ReactNode;
 }
 
@@ -47,7 +48,9 @@ export function ArtifactState({
   }
 
   if (error && !isGenerated) {
-    return <ErrorState label={label} error={error} onRetry={onGenerate} />;
+    return (
+      <ErrorState label={label} error={error} onRetry={() => onGenerate(false)} />
+    );
   }
 
   if (isGenerated) {
@@ -61,7 +64,7 @@ export function ArtifactState({
           <Button
             variant="ghost"
             size="sm"
-            onClick={onGenerate}
+            onClick={() => onGenerate(true)}
             disabled={isBusy}
           >
             {isBusy ? (
@@ -84,7 +87,7 @@ export function ArtifactState({
       title={`Generate ${label}`}
       description={`Create ${label} from this video's transcript with AI.`}
       action={
-        <Button onClick={onGenerate}>
+        <Button onClick={() => onGenerate(false)}>
           <Sparkles className="size-4" />
           Generate {label}
         </Button>

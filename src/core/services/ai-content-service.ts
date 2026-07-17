@@ -11,22 +11,18 @@ import type {
   ArtifactKind,
   GenerationInput,
 } from "@/core/types/ai";
-import type { TranscriptSegment } from "@/core/types/transcript";
 import { NotFoundError, TranscriptUnavailableError } from "@/core/errors/provider-errors";
+import { renderTranscript } from "@/core/services/transcript-sampling";
 import { logger } from "@/core/logging/logger";
 
-const MAX_TRANSCRIPT_CHARS = 14_000;
+// Character budget fed to a generator. Raised from 14k and sampled evenly so
+// long videos are covered end-to-end; kept modest to stay within provider
+// token/rate limits across the six generators.
+const MAX_TRANSCRIPT_CHARS = 20_000;
 const ARTIFACT_TTL_SEC = 60 * 60; // Postgres is the source of truth; 1h hot copy.
 
 const artifactKey = (kind: ArtifactKind, videoId: string) =>
   `${kind}:${videoId}`;
-
-function buildTranscriptText(segments: TranscriptSegment[]): string {
-  const full = segments.map((s) => s.text).join(" ");
-  return full.length <= MAX_TRANSCRIPT_CHARS
-    ? full
-    : `${full.slice(0, MAX_TRANSCRIPT_CHARS)}…`;
-}
 
 /**
  * Generates and caches AI artifacts. Dispatches to the AIProvider's domain
@@ -78,7 +74,7 @@ export class AiContentService {
     const input: GenerationInput = {
       title: video.title,
       channel: video.channelTitle,
-      transcriptText: buildTranscriptText(segments),
+      transcriptText: renderTranscript(segments, MAX_TRANSCRIPT_CHARS),
     };
 
     const startedAt = Date.now();

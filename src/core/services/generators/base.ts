@@ -40,9 +40,22 @@ export abstract class BaseGenerator<K extends ArtifactKind>
   }
 }
 
+/**
+ * Grounding rules prepended to every generator's context to curb
+ * hallucination — invented names, wrong spellings, outside facts.
+ */
+const GROUNDING_RULES =
+  "Ground every statement strictly in the transcript below. Do not invent or " +
+  "guess names, numbers, dates, or facts, and do not add outside knowledge. " +
+  "Spell names and terms exactly as they appear in the transcript; if a name " +
+  "is unclear or garbled, describe the person by role instead of guessing a " +
+  "spelling. If the transcript doesn't support a detail, leave it out.";
+
 /** Shared context block prepended to each generator's user prompt. */
 export function transcriptContext(input: GenerationInput): string {
   return [
+    GROUNDING_RULES,
+    "",
     `Video title: ${input.title}`,
     input.channel ? `Channel: ${input.channel}` : null,
     "",

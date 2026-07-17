@@ -26,7 +26,7 @@ export function QuizPanel({
       isGenerated={!!quiz.data}
       isBusy={quiz.isLoading || gen.isPending}
       error={gen.error}
-      onGenerate={() => gen.mutate(undefined)}
+      onGenerate={(force) => gen.mutate({ force })}
     >
       {quiz.data && <QuizRunner questions={quiz.data.data.questions} />}
     </ArtifactState>

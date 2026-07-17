@@ -24,7 +24,7 @@ export function FlashcardsPanel({
       isGenerated={!!flashcards.data}
       isBusy={flashcards.isLoading || gen.isPending}
       error={gen.error}
-      onGenerate={() => gen.mutate(undefined)}
+      onGenerate={(force) => gen.mutate({ force })}
     >
       <div className="grid gap-3 sm:grid-cols-2">
         {flashcards.data?.data.cards.map((card, i) => (
