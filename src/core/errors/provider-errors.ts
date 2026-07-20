@@ -14,6 +14,7 @@ export type ErrorCode =
   | "NO_CAPTIONS"
   | "VIDEO_UNAVAILABLE"
   | "INVALID_URL"
+  | "INVALID_INPUT"
   | "NOT_FOUND"
   | "NETWORK"
   | "GENERATION_FAILED"
@@ -76,10 +77,16 @@ export class QuotaExceededError extends ProviderError {
   readonly code = "QUOTA_EXCEEDED";
 }
 
-/** Non-provider domain errors that still need a stable envelope. */
+/**
+ * Non-provider domain errors that still need a stable envelope. Defaults to
+ * the generic "INVALID_INPUT" — pass an explicit code only when the failure
+ * is genuinely about that specific thing (e.g. "INVALID_URL" for a malformed
+ * YouTube link), so callers don't accidentally mislabel unrelated validation
+ * errors (empty note, bad chat message, etc.) as URL problems.
+ */
 export class InvalidInputError extends ProviderError {
   readonly code: ErrorCode;
-  constructor(message: string, code: ErrorCode = "INVALID_URL") {
+  constructor(message: string, code: ErrorCode = "INVALID_INPUT") {
     super(message);
     this.code = code;
   }
@@ -100,6 +107,7 @@ export class AuthRequiredError extends ProviderError {
 export function httpStatusForCode(code: ErrorCode): number {
   switch (code) {
     case "INVALID_URL":
+    case "INVALID_INPUT":
       return 400;
     case "NO_TRANSCRIPT":
       return 409;

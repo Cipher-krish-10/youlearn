@@ -37,6 +37,15 @@ export class MemoryQuotaRepository implements QuotaRepository {
     return true;
   }
 
+  async release(userId: string, kind: QuotaKind, month: string): Promise<void> {
+    const row = this.rows.get(userId);
+    // Stale release (month rolled over, nothing to give back) is a no-op —
+    // never create a row or go negative just to undo a charge.
+    if (row && row.month === month && row.counts[kind] > 0) {
+      row.counts[kind] -= 1;
+    }
+  }
+
   async snapshot(userId: string, month: string): Promise<UsageSnapshot> {
     const row = this.rows.get(userId);
     const fresh = row && row.month === month;

@@ -84,6 +84,8 @@ export type AiErrorCode =
   | "NOT_FOUND"
   | "RATE_LIMITED"
   | "GENERATION_FAILED"
+  | "INVALID_INPUT"
+  | "QUOTA_EXCEEDED"
   | "UNKNOWN";
 
 export interface AiErrorBody {

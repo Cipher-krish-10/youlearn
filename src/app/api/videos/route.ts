@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       throw new InvalidInputError(
         parsed.error.issues[0]?.message ?? "Invalid request.",
+        "INVALID_URL",
       );
     }
 
@@ -40,14 +41,23 @@ export async function POST(request: Request) {
     const existing = youtubeId
       ? await getVideoRepository().getByYoutubeId(youtubeId, user.id)
       : null;
-    if (!existing || existing.status !== "READY") {
+    const isNewWorkspace = !existing || existing.status !== "READY";
+    if (isNewWorkspace) {
       await getQuotaService().consume(user.id, "workspace");
     }
 
-    const video = await getIngestionService().ingest({
-      url: parsed.data.url,
-      userId: user.id,
-    });
+    let video;
+    try {
+      video = await getIngestionService().ingest({
+        url: parsed.data.url,
+        userId: user.id,
+      });
+    } catch (err) {
+      // Ingestion failed (bad video, network, provider outage) — don't let a
+      // user's monthly allowance be spent on a workspace that never happened.
+      if (isNewWorkspace) await getQuotaService().release(user.id, "workspace");
+      throw err;
+    }
     return NextResponse.json({ video: toVideoDTO(video) }, { status: 201 });
   } catch (err) {
     return errorResponse(err);

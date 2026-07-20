@@ -57,7 +57,15 @@ export async function POST(req: Request, { params }: Params) {
     await enforceRateLimit("chat", user.id);
     await getQuotaService().consume(user.id, "chat");
 
-    const result = await getChatService().answer(id, parsed.data.message, user.id);
+    let result;
+    try {
+      result = await getChatService().answer(id, parsed.data.message, user.id);
+    } catch (err) {
+      // e.g. transcript not ready, provider error — don't charge for a
+      // question that never got answered.
+      await getQuotaService().release(user.id, "chat");
+      throw err;
+    }
     return NextResponse.json(result);
   } catch (err) {
     return errorResponse(err);

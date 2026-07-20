@@ -46,6 +46,16 @@ export class PrismaQuotaRepository implements QuotaRepository {
     return res.count === 1;
   }
 
+  async release(userId: string, kind: QuotaKind, month: string): Promise<void> {
+    const column = COLUMN[kind];
+    // Guarded so a stale release (month already rolled over, or nothing left
+    // to give back) is a harmless no-op rather than an underflow.
+    await prisma.user.updateMany({
+      where: { id: userId, usageResetMonth: month, [column]: { gt: 0 } },
+      data: { [column]: { decrement: 1 } },
+    });
+  }
+
   async snapshot(userId: string, month: string): Promise<UsageSnapshot> {
     const user = await prisma.user.findUnique({
       where: { id: userId },

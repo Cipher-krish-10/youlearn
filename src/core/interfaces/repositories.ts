@@ -62,6 +62,11 @@ export interface QuotaRepository {
     limit: number,
     month: string,
   ): Promise<boolean>;
+  /**
+   * Give back one unit of `kind`, e.g. when the metered work it paid for
+   * failed. A no-op if the month has since rolled over (already reset).
+   */
+  release(userId: string, kind: QuotaKind, month: string): Promise<void>;
   snapshot(userId: string, month: string): Promise<UsageSnapshot>;
 }
 

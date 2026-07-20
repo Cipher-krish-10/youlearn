@@ -58,7 +58,15 @@ export async function POST(req: Request, { params }: Params) {
     await enforceRateLimit("generate", user.id);
     await getQuotaService().consume(user.id, "generation");
 
-    const artifact = await service.generate(id, kind, { force: true });
+    let artifact;
+    try {
+      artifact = await service.generate(id, kind, { force: true });
+    } catch (err) {
+      // e.g. transcript not ready, provider error — don't charge for a
+      // generation that never produced anything.
+      await getQuotaService().release(user.id, "generation");
+      throw err;
+    }
     return NextResponse.json({ artifact });
   } catch (err) {
     return errorResponse(err);

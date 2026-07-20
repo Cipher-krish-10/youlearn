@@ -32,10 +32,12 @@ export interface TranscriptLineDTO {
 
 export type IngestErrorCode =
   | "INVALID_URL"
+  | "INVALID_INPUT"
   | "VIDEO_UNAVAILABLE"
   | "NO_CAPTIONS"
   | "NETWORK"
   | "NOT_FOUND"
+  | "QUOTA_EXCEEDED"
   | "UNKNOWN";
 
 export interface ApiErrorBody {
