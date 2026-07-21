@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Check } from "lucide-react";
 import { Logo, LogoMark } from "@/components/shared/logo";
 import { ModeToggle } from "@/components/shared/mode-toggle";
@@ -25,23 +24,6 @@ export default function AuthLayout({
         <div className="flex flex-1 items-center justify-center py-10">
           <div className="w-full max-w-sm">{children}</div>
         </div>
-        <p className="text-center text-xs text-muted-foreground">
-          By continuing you agree to our{" "}
-          <Link
-            href="#"
-            className="underline underline-offset-2 hover:text-foreground"
-          >
-            Terms
-          </Link>{" "}
-          and{" "}
-          <Link
-            href="#"
-            className="underline underline-offset-2 hover:text-foreground"
-          >
-            Privacy Policy
-          </Link>
-          .
-        </p>
       </div>
 
       {/* Brand side — quiet, content-first, with a little ambient depth */}
