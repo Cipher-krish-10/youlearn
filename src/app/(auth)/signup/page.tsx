@@ -113,7 +113,7 @@ export default function SignupPage() {
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Full name</Label>
-            <Input id="name" name="name" placeholder="Kris Uppal" required />
+            <Input id="name" name="name" placeholder="Your name" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
