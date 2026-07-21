@@ -52,7 +52,7 @@ export function SocialAuth({ action }: { action: string }) {
   return (
     <Button
       variant="outline"
-      className="w-full"
+      className="h-10 w-full"
       onClick={signInWithGoogle}
       disabled={loading}
     >

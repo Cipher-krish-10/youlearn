@@ -52,14 +52,14 @@ export default function LoginPage() {
 
   return (
     <div>
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+      <div className="space-y-2.5 text-center">
+        <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
         <p className="text-sm text-muted-foreground">
           Log in to pick up where you left off.
         </p>
       </div>
 
-      <div className="mt-8 space-y-6">
+      <div className="mt-9 space-y-6">
         <SocialAuth action="Log in" />
 
         <div className="relative">
@@ -107,7 +107,7 @@ export default function LoginPage() {
             </p>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="h-10 w-full" disabled={loading}>
             {loading && <Loader2 className="size-4 animate-spin" />}
             {loading ? "Logging in…" : "Log in"}
           </Button>
