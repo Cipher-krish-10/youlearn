@@ -47,33 +47,11 @@ export default function AuthLayout({
         />
 
         <div className="relative max-w-md">
-          <span
-            aria-hidden
-            className="block font-serif text-6xl leading-none text-primary/25"
-          >
-            &ldquo;
-          </span>
-          <figure>
-            <blockquote className="text-balance text-2xl font-medium leading-snug tracking-tight">
-              I paste a link, skim the summary, and quiz myself. My retention
-              has genuinely doubled.
-            </blockquote>
-            <figcaption className="mt-6 flex items-center gap-3">
-              <span className="flex size-9 items-center justify-center rounded-full border bg-primary/10 text-xs font-semibold text-primary">
-                MR
-              </span>
-              <span>
-                <span className="block text-sm font-medium">
-                  Maya Rodriguez
-                </span>
-                <span className="block text-xs text-muted-foreground">
-                  CS student, UC Berkeley
-                </span>
-              </span>
-            </figcaption>
-          </figure>
+          <h2 className="text-balance text-2xl font-medium leading-snug tracking-tight">
+            Turn watching into learning — one workspace for every video.
+          </h2>
 
-          <ul className="mt-12 space-y-3.5 border-t pt-8">
+          <ul className="mt-10 space-y-3.5 border-t pt-8">
             {points.map((text) => (
               <li key={text} className="flex items-center gap-3 text-sm">
                 <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-primary/12 text-primary">
