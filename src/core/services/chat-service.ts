@@ -27,7 +27,10 @@ export interface ChatAnswer {
 }
 
 const RETRIEVE_K = 5;
-const MAX_CONTEXT_CHARS = 30_000;
+// Sized for Groq's free tier, which caps input + max_tokens at 8k tokens per
+// minute per model — ~12k chars (~3k tokens) leaves room for two questions a
+// minute. Sampled evenly, so long videos are still covered end-to-end.
+const MAX_CONTEXT_CHARS = 12_000;
 const ANSWER_TTL_SEC = 24 * 60 * 60; // transcripts are immutable, answers keep.
 
 /** Same question (modulo case/whitespace) about the same video → same key. */

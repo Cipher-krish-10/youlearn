@@ -12,7 +12,12 @@ import {
   RateLimitError,
 } from "@/core/errors/provider-errors";
 import { withProviderLogging } from "@/core/logging/logger";
-import { groqClient, groqModels, isGroqConfigured } from "@/core/providers/ai/groq/client";
+import {
+  groqClient,
+  groqModelOptions,
+  groqModels,
+  isGroqConfigured,
+} from "@/core/providers/ai/groq/client";
 
 /**
  * Groq implementation of the low-level text model via its OpenAI-compatible API.
@@ -42,6 +47,7 @@ export class GroqTextModel implements LlmTextModel {
           try {
             const res = await groqClient().chat.completions.create({
               model: groqModels.chat,
+              ...groqModelOptions(),
               temperature,
               max_tokens: maxOutputTokens,
               response_format: { type: "json_object" },
@@ -90,6 +96,7 @@ export class GroqTextModel implements LlmTextModel {
         try {
           const res = await groqClient().chat.completions.create({
             model: groqModels.chat,
+            ...groqModelOptions(),
             temperature,
             max_tokens: maxOutputTokens,
             messages: [
@@ -122,10 +129,30 @@ function mapGroqError(err: unknown) {
     }
     if (err.status === 429) {
       return new RateLimitError(
-        "Groq is rate-limiting requests. Try again in a moment.",
+        "The AI is busy right now. Try again in about a minute.",
         "groq",
       );
     }
+    // A single request larger than the per-minute token cap; retrying can't help.
+    if (err.status === 413) {
+      return new GenerationFailedError(
+        "This request is too large for the AI's current limits.",
+        "groq",
+        { cause: err },
+      );
+    }
+    if (err.status === 404) {
+      return new GenerationFailedError(
+        `The configured Groq model "${groqModels.chat}" isn't available.`,
+        "groq",
+        { cause: err },
+      );
+    }
+    return new GenerationFailedError(
+      `Groq request failed (HTTP ${err.status ?? "unknown"}). Please try again.`,
+      "groq",
+      { cause: err },
+    );
   }
   return new GenerationFailedError("Couldn't reach Groq. Please try again.", "groq", {
     cause: err,

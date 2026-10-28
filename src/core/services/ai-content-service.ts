@@ -15,10 +15,11 @@ import { NotFoundError, TranscriptUnavailableError } from "@/core/errors/provide
 import { renderTranscript } from "@/core/services/transcript-sampling";
 import { logger } from "@/core/logging/logger";
 
-// Character budget fed to a generator. Raised from 14k and sampled evenly so
-// long videos are covered end-to-end; kept modest to stay within provider
-// token/rate limits across the six generators.
-const MAX_TRANSCRIPT_CHARS = 20_000;
+// Character budget fed to a generator, sampled evenly so long videos are
+// covered end-to-end. Sized for Groq's free tier, which caps input +
+// max_tokens at 8k tokens per minute per model: ~10k chars (~2.7k tokens)
+// plus a generator's output budget stays under ~5k per request.
+const MAX_TRANSCRIPT_CHARS = 10_000;
 const ARTIFACT_TTL_SEC = 60 * 60; // Postgres is the source of truth; 1h hot copy.
 
 const artifactKey = (kind: ArtifactKind, videoId: string) =>

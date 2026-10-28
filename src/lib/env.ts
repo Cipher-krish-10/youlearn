@@ -40,7 +40,7 @@ const serverSchema = z.object({
     (v) => (v === "" ? undefined : v),
     z.string().min(1).optional(),
   ),
-  GROQ_CHAT_MODEL: z.string().min(1).default("llama-3.3-70b-versatile"),
+  GROQ_CHAT_MODEL: z.string().min(1).default("openai/gpt-oss-120b"),
   // Optional hosted transcript provider (e.g. Supadata). When unset, the
   // hosted provider stays disabled and ingestion falls back gracefully.
   // An empty string is treated as "not set" so a blank .env entry is fine.
